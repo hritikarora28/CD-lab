@@ -1,0 +1,108 @@
+## Infix to Prefix Conversion
+## Stack class to define a stack
+class Stack:
+
+    def __init__(self, length):
+        self.stack = [None for _ in range(length)]
+        self.top = -1
+        self.length = length
+
+    ## Pushing element inside stack
+    def push(self, val):
+        if self.top == self.length - 1:
+            return -999
+        self.top+=1
+        self.stack[self.top] = val
+        return 1
+
+    ## Pop element from stack
+    def pop(self):
+        if self.top == -1:
+            return -999
+        val = self.stack[self.top]
+        self.stack[self.top] = None
+        self.top-=1
+        return val
+
+## Check if character in string is
+## an opertor or any alphabet or digit
+def isOperator(char):
+
+    if not(char.isalpha() or char.isdigit()):
+        return 1
+    else:
+        return 0
+
+## Checking operator precedence
+def priority(opr):
+
+    if opr == '+' or opr == '-':
+        return 1
+    elif opr == '*' or opr == '/':
+        return 2
+    elif opr == '^':
+        return 3
+    return 0
+
+def infixToPrefix(infix):
+
+    prefix = ''
+    revInfix = ''
+
+    ## Replacing '(' with ')' and
+    ## reversing the input string
+    for i in range(len(infix)-1, -1, -1):
+        ch = infix[i]
+        
+        if ch=='(': ch = ')'
+        elif ch==')': ch='('
+            
+        revInfix += ch 
+    print(revInfix)
+    infix = revInfix
+
+    ## Declaration of stack
+    stack = Stack(len(infix))
+    
+    for i in infix:
+        ## If character is '(' push it to stack
+        if i == '(':
+            stack.push(i)
+
+        ## if character is ')' pop out elements
+        ## from stack until '(' is found or
+        ## the stack becomes empty
+        elif i == ')':
+            ch = stack.stack[stack.top]
+            while stack.top>-1 and ch != '(':
+                prefix += stack.pop()
+                ch = stack.stack[stack.top]
+            stack.pop()
+
+        ## if the character is a digit or alphabet
+        ## add it to the answer string
+        elif not isOperator(i):
+            prefix += i
+
+        ## if the character is any operator
+        ## pop out elements from stack until
+        ## the stack is empty or a symbol with
+        ## a higher precedence is found in the stack
+        elif isOperator(i):
+            ch = stack.stack[stack.top]
+            while stack.top>-1 and priority(i) <= priority(ch):
+                prefix += stack.pop()
+                ch = stack.stack[stack.top]
+            stack.push(i)
+
+    ## Pop out all remaning elements in
+    ## the stack and add it to answer string
+    while stack.top > -1:
+        prefix += stack.pop()
+
+    ## Return the reversed answer string
+    return prefix[::-1]
+
+if __name__ == '__main__':
+    string = 'a/b+(c*d^e+(g/h*f)^(i-j)-k)*l-m'
+    print(infixToPrefix(string))
